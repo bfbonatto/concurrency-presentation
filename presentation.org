@@ -15,7 +15,7 @@ us develop correct and secure concurrent programs. This is a collection of notes
 on some modern approaches to concurrent programming.
 
 ** Motivational Example
-
+[[https://github.com/bfbonatto/concurrency-presentation/blob/master/sieve.go][Concurrent Sieve]]
 
 * CSP
 
