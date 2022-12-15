@@ -1,0 +1,139 @@
+% Intended LaTeX compiler: pdflatex
+\documentclass[bigger]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usetheme{default}
+\author{Bruno Bonatto}
+\date{\today}
+\title{Notes and Patterns in Concurrent Channel-Based Programming}
+\hypersetup{
+ pdfauthor={Bruno Bonatto},
+ pdftitle={Notes and Patterns in Concurrent Channel-Based Programming},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 28.2 (Org mode 9.6)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:orgdd19380}
+
+\begin{frame}[label={sec:orgc68c724}]{Introduction}
+Concurrent programming is a very difficult problem, fortunately many incredibly
+intelligent people have spent many hours developing tools and theories to help
+us develop correct and secure concurrent programs. This is a collection of notes
+on some modern approaches to concurrent programming.
+\end{frame}
+
+\begin{frame}[label={sec:org6985a57}]{Motivational Example}
+\href{https://github.com/bfbonatto/concurrency-presentation/blob/master/sieve.go}{Concurrent Sieve}
+\end{frame}
+
+\section{CSP}
+\label{sec:org2b15e1b}
+
+\begin{frame}[label={sec:org3fae2ae}]{Communicating Sequential Processes}
+The basis for Go.
+\end{frame}
+
+\section{Pi Calculus}
+\label{sec:org57debb8}
+
+\begin{frame}[label={sec:orgce0476f}]{Pi Calculus}
+A formal system for computation, analogous to the lambda calculus, focused
+on concurrency and message passing.
+\end{frame}
+
+\begin{frame}[label={sec:orgd008e4d}]{Core Language}
+Only two kinds of entities: processes and channels.
+
+\begin{itemize}
+\item \(\bar{x}y\) sends the value \(y\) along the port/channel \(x\).
+\item \(x(z)\) receives a value from \(x\) and assigns it to the variable \(z\).
+\item \(e_1\cdot e_2\) composes \(e_1\) and \(e_2\) sequencially.
+\item \(e_1 | e_2\) composes \(e_1\) and \(e_2\) parallelly
+\end{itemize}
+\end{frame}
+
+\begin{frame}[label={sec:orgec64900}]{Example}
+\begin{equation*}
+\bar{x}y \cdot e_1 \ |\ x(z) \cdot e_2 \ \Rightarrow \ e_1 \ |\  \{z \mapsto y\} e_2
+\end{equation*}
+
+This ``program'' sends the value \(y\) through the channel \(x\) from one process
+to another, the sending process then continues to execute the program \(e_1\);
+while the receiving process executes the program \(e_2\) but with all instances
+of the variable \(z\) replaced by the value \(y\).
+\end{frame}
+
+\begin{frame}[label={sec:org569e2fe}]{Core Language}
+Fresh channels can be introduced with \(v\).
+
+The expression \((vx)e\) creates a fresh channel \(x\) in the scope \(e\).
+For example:
+
+\begin{equation*}
+(vx)(\bar{x}\cdot e_1\ |\ x(z)\cdot e_2)
+\end{equation*}
+
+Localizes the channel \(x\), ensuring that no other processes can interfere with
+communication on \(x\).
+\end{frame}
+
+\section{Go}
+\label{sec:orgec5fc79}
+
+\begin{frame}[label={sec:orge99e31e},fragile]{Common Concurrency Errors}
+ \begin{block}{Channel safety}
+Once a channel is closed, receive actions always succeed, but all send
+and close actions raise a runtime error.
+\end{block}
+
+\begin{block}{Global deadlocks}
+The Go runtime contains a \emph{global} deadlock detector that signals
+a runtime error when \emph{all} goroutines in a program are stuck. However
+it is often the case that, when certain libraries are imported (such as
+the commonly used \texttt{net} package), the global deadlock is silently \emph{disabled}.
+\end{block}
+
+\begin{block}{Partial deadlocks}
+Sometimes called \emph{liveness} failures, partial deadlocks occur when a program's
+communication cannot progress despite some of its goroutines not being stuck.
+\end{block}
+\end{frame}
+
+\begin{frame}[label={sec:org4c9a9c2}]{Partial Deadlock Example}
+\href{https://github.com/bfbonatto/concurrency-presentation/blob/master/partial-deadlock.go}{Example}
+\end{frame}
+
+\section{Multiparty Session Types}
+\label{sec:orge7938df}
+
+\begin{frame}[label={sec:org6456fce}]{Multiparty Session Types}
+TODO
+\end{frame}
+
+\section{References}
+\label{sec:orge5100f7}
+
+\begin{frame}[label={sec:orgb4ef151}]{References}
+\begin{itemize}
+\item Hoare (1978)
+\item Pierce, Turner (2000)
+\item Lange, Ng, Toninho, Yoshida (2017)
+\item Lange, Ng, Toninho, Yoshida (2018)
+\item Castro, Hu, Jongmas, Ng, Yoshida (2019)
+\end{itemize}
+\end{frame}
+\end{document}
